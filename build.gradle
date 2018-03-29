@@ -17,6 +17,7 @@ task copyPythonFiles(type: Copy) {
         include 'requirements.txt'
         exclude "*__pycache__"
     }
+    from 'credentials.json'
     into pythonPackage
 }
 
