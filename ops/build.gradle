@@ -1,0 +1,69 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://jitpack.io"
+            credentials {
+                username ""
+                password "."
+            }
+        }
+    }
+    dependencies {
+        classpath "com.github.tadodotcom:tado-deploy-gradle-plugin:v41"
+    }
+}
+
+import com.amazonaws.services.cloudformation.model.Capability
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'tado-deploy'
+
+ext {
+    bucket = 'move-files-dropbox-releases'
+    environmentName = project.findProperty('environment')
+    awsRegion = "eu-west-1"
+    camelCasedAwsRegion = awsRegion.split('-').collect { it.capitalize() }.join('')
+}
+
+tado {
+    aws {
+        accountId = ''
+        region = "${awsRegion}"
+
+        cloudformation {
+            bucketName = "${bucket}"
+            environment = environmentName
+            stackBaseName = "move-files-dropbox"
+            templateFile = file('stack/service-stack.yaml')
+            capability = Capability.CAPABILITY_NAMED_IAM
+        }
+    }
+}
+
+import jp.classmethod.aws.gradle.s3.AmazonS3FileUploadTask
+import jp.classmethod.aws.gradle.s3.SyncTask
+
+// This is required because docker tasks are added by tado-deploy plugin in afterEvaluate
+// It would be better to configure them right away, but extension values are not known then.
+project.gradle.projectsEvaluated {
+
+    def releaseBucket = tasks.getByPath("createReleaseBucket${camelCasedAwsRegion}")
+
+    task uploadPipelineLambdaPackage(type: AmazonS3FileUploadTask) {
+
+        def zipPackage = project.rootProject.tasks.getByPath('zipPythonPackage')
+
+        dependsOn releaseBucket, zipPackage
+        def firstFile = zipPackage.outputs.files.first()
+        file firstFile
+        key "${project.version}/${firstFile.name}".toString()
+        overwrite true
+        bucketName releaseBucket.bucketName
+    }
+
+    githubRelease.dependsOn uploadPipelineLambdaPackage
+}

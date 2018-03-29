@@ -1,1 +1,2 @@
 rootProject.name = 'move-files-dropbox'
+include 'ops'
