@@ -63,3 +63,5 @@ ops/stack/service-stack.json
 
 .cache
 *.pytest_cache*
+
+credentials.json
