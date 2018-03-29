@@ -1,0 +1,38 @@
+plugins {
+    id 'base'
+}
+
+ext {
+    pythonPackage = "${buildDir}/package"
+}
+
+clean {
+    delete "$buildDir"
+}
+
+task copyPythonFiles(type: Copy) {
+    from('src') {
+        include '**/*.py'
+        include 'index.py'
+        include 'requirements.txt'
+        exclude "*__pycache__"
+    }
+    into pythonPackage
+}
+
+task buildPythonPackage(type: Exec, dependsOn: copyPythonFiles) {
+    executable 'docker'
+    args 'run', '--rm', '-w', '/root', "-v", "${pythonPackage}:/root/build_tmp", 'lambci/lambda:build-python3.6',
+         'pip3.6', 'install', '-r', '/root/build_tmp/requirements.txt', '-t', '/root/build_tmp'
+}
+
+task zipPythonPackage(type: Zip, dependsOn: buildPythonPackage) {
+    from("${pythonPackage}") {
+        include "**/*"
+    }
+    archiveName "${project.name}.zip"
+    destinationDir buildDir
+}
+
+build.dependsOn zipPythonPackage
+
