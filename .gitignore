@@ -1,0 +1,65 @@
+# IDE support files
+.classpath
+.launch
+.project
+.settings
+.grails
+.gradle
+.slcache
+*.launch
+*.tmproj
+ivy*
+eclipse
+out/
+
+# Temporary data during build
+/docker/tomcat/ROOT.war
+
+# default HSQL database files for production mode
+/prodDb.*
+
+# Data that can be easily recreated by update-bootstrap-data.sh
+bootStrapData.sql
+
+# general HSQL database files
+*Db.properties
+*Db.script
+
+# logs
+/stacktrace.log
+/test/reports
+/logs
+
+# project release file
+ROOT.war
+
+# plugin release file
+/*.zip
+
+# older plugin install locations
+/plugins
+/web-app/plugins
+/web-app/WEB-INF/classes
+/web-app/WEB-INF/tld
+
+# "temporary" build files
+/target
+build/
+
+# other
+*.iws
+
+*.iml
+*.idea
+.slcache
+
+plugin.xml
+jenkins-version.txt
+ops/stack/service-stack.json
+
+.DS_Store
+
+*.pyc
+
+.cache
+*.pytest_cache*
