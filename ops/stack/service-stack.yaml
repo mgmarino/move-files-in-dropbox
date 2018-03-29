@@ -43,7 +43,7 @@ Resources:
         S3Key: !Sub "${Version}/move-files-dropbox.zip"
       Description: Transform files between directories 
       Handler: index.handler
-      MemorySize: 128
+      MemorySize: 256
       Role: !GetAtt MoveFilesLambdaRole.Arn
       Runtime: python3.6
       Timeout: 300
