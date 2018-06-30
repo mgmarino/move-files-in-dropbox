@@ -26,7 +26,7 @@ def move_and_wait_until_complete(reloc_paths):
         print("Nothing to move")
         return
     print("{} files to move...".format(len(reloc_paths)))
-    job_status = dbx.files_move_batch(reloc_paths)
+    job_status = dbx.files_move_batch(reloc_paths, autorename=True)
     if not job_status.is_async_job_id():
         print("Job already complete!")
         return
