@@ -57,7 +57,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Description: 'Process daily files from dropbox' 
-      ScheduleExpression: cron(0 19 * * ? *)
+      ScheduleExpression: rate(30 minutes)
       State: ENABLED
       Targets:
         - Arn: !GetAtt MoveFilesLambda.Arn
