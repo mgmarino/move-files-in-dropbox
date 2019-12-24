@@ -7,10 +7,9 @@ import json
 app_info = json.loads(open("./credentials.json").read())
 
 dbx = dropbox.Dropbox(app_info["accessToken"])
-folder_name = app_info["sourceFolder"]
-destination_folder = app_info["destinationFolder"]
+paths = app_info["paths"]
 
-def get_file_names_to_move(cursor=None):
+def get_file_names_to_move(folder_name=None, cursor=None):
     if cursor is not None:
         continuing_list = dbx.files_list_folder_continue(cursor)
     else:
@@ -18,7 +17,7 @@ def get_file_names_to_move(cursor=None):
 
     files = [_file.path_lower for _file in continuing_list.entries]
     if continuing_list.has_more:
-        files.extend(get_file_names_to_move(continuing_list.cursor))
+        files.extend(get_file_names_to_move(cursor=continuing_list.cursor))
     return files
 
 def move_and_wait_until_complete(reloc_paths):
@@ -56,13 +55,15 @@ def folder_of_file(afile):
     return month_year
 
 def handler(event, context):
-    files_to_move = get_file_names_to_move()
-    print(files_to_move)
-    relocation_paths = list(map(lambda x: dropbox.files.RelocationPath(x,
-        os.path.join(destination_folder, folder_of_file(x),
-            os.path.basename(x))), files_to_move))
-
-    move_and_wait_until_complete(relocation_paths)
+    for path in paths:
+        folder_name = path["sourceFolder"]
+        destination_folder = path["destinationFolder"]
+        files_to_move = get_file_names_to_move(folder_name=folder_name)
+        print(f"{len(files_to_move)} files to move")
+        relocation_paths = list(map(lambda x: dropbox.files.RelocationPath(x,
+            os.path.join(destination_folder, folder_of_file(x),
+                os.path.basename(x))), files_to_move))
+        move_and_wait_until_complete(relocation_paths)
 
 if __name__ == "__main__":
     handler(None, None)
