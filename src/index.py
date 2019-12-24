@@ -24,13 +24,12 @@ def move_and_wait_until_complete(reloc_paths):
     if len(reloc_paths) == 0:
         print("Nothing to move")
         return
-    print("{} files to move...".format(len(reloc_paths)))
     job_status = dbx.files_move_batch(reloc_paths, autorename=True)
     if not job_status.is_async_job_id():
         print("Job already complete!")
         return
     jobid = job_status.get_async_job_id()
-    print("Executing with jobid({})".format(jobid))
+    print(f"Executing with jobid({jobid})")
     print("Checking status: ")
     while 1:
         status = dbx.files_move_batch_check(jobid)
@@ -41,10 +40,10 @@ def move_and_wait_until_complete(reloc_paths):
             continue
 
         if status.is_complete():
-            print("\nJob id ({}) complete".format(jobid))
-            print("{} files moved".format(len(reloc_paths)))
+            print(f"\nJob id ({jobid}) complete")
+            print(f"{len(reloc_paths)} files moved")
         else:
-            print("\nJob id ({}) failed".format(jobid))
+            print(f"\nJob id ({jobid}) failed")
             print(status.get_failed())
         break
 
@@ -59,7 +58,7 @@ def handler(event, context):
         folder_name = path["sourceFolder"]
         destination_folder = path["destinationFolder"]
         files_to_move = get_file_names_to_move(folder_name=folder_name)
-        print(f"{len(files_to_move)} files to move")
+        print(f"{len(files_to_move)} files to move from {folder_name}")
         relocation_paths = list(map(lambda x: dropbox.files.RelocationPath(x,
             os.path.join(destination_folder, folder_of_file(x),
                 os.path.basename(x))), files_to_move))
