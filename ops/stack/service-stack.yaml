@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Move Files Dropbox 
+Description: Move Files Dropbox
 
 Parameters:
   Environment:
@@ -10,7 +10,7 @@ Parameters:
     Type: String
   ClusterName:
     Type: String
-    Default: move-files-dropbox 
+    Default: move-files-dropbox
 
 Resources:
 
@@ -41,7 +41,7 @@ Resources:
       Code:
         S3Bucket: !Sub 'move-files-dropbox-releases-${AWS::Region}'
         S3Key: !Sub "${Version}/move-files-dropbox.zip"
-      Description: Transform files between directories 
+      Description: Transform files between directories
       Handler: index.handler
       MemorySize: 256
       Role: !GetAtt MoveFilesLambdaRole.Arn
@@ -56,7 +56,7 @@ Resources:
   DailyProcessTrigger:
     Type: AWS::Events::Rule
     Properties:
-      Description: 'Process daily files from dropbox' 
+      Description: 'Process daily files from dropbox'
       ScheduleExpression: rate(30 minutes)
       State: ENABLED
       Targets:
