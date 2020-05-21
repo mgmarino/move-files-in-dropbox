@@ -1,0 +1,45 @@
+name: PR builder
+on: pull_request
+
+
+jobs:
+  build:
+    name: PR building
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      JITPACK_TOKEN: ${{ secrets.JITPACK_TOKEN }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Checkout full history
+        run: |
+         git fetch --prune --unshallow
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.6'
+
+      - name: Setup Java for Gradle
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8.0.252'
+
+      - name: Setup gradle cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Update environment
+        run: |
+          pip install pipenv
+
+      - name: Run checks
+        run: ./gradlew clean build -i --stacktrace
+        env:
+          GIT_BRANCH: ${{ github.head_ref }}
