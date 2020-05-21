@@ -4,7 +4,7 @@ buildscript {
         maven {
             url "https://jitpack.io"
             credentials {
-                username ""
+                username System.getenv('JITPACK_TOKEN')
                 password "."
             }
         }
@@ -31,7 +31,7 @@ ext {
 
 tado {
     aws {
-        accountId = ''
+        accountId = System.getenv('AWS_ACCOUNT_ID')
         region = "${awsRegion}"
 
         cloudformation {
