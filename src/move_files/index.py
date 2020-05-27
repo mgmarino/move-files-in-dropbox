@@ -1,14 +1,14 @@
-import json
 import os
 import sys
 import time
 
 import dropbox
+from move_files.services.credentials import Credentials
 
-app_info = json.loads(open("./credentials.json").read())
+credentials = Credentials(os.environ["CREDENTIALS_LOCATION"])
 
-dbx = dropbox.Dropbox(app_info["accessToken"])
-paths = app_info["paths"]
+dbx = dropbox.Dropbox(credentials.access_token)
+paths = credentials.paths
 
 
 def get_file_names_to_move(folder_name=None, cursor=None):
