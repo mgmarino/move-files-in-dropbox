@@ -13,6 +13,14 @@ Parameters:
     Default: move-files-dropbox
 
 Resources:
+  MoveFilesS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: marino-dropbox-move-files
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
 
   MoveFilesLambdaRole:
     Type: AWS::IAM::Role
