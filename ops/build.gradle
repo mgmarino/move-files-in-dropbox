@@ -10,7 +10,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.github.tadodotcom:tado-deploy-gradle-plugin:v41"
+        classpath "com.github.tadodotcom:tado-deploy-gradle-plugin:v72"
     }
 }
 
