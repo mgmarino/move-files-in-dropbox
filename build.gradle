@@ -1,5 +1,13 @@
 plugins {
     id 'base'
+    id 'java'
+    id 'idea'
+}
+
+idea {
+    module {
+        sourceDirs += file('src')
+    }
 }
 
 ext {
