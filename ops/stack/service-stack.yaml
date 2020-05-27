@@ -52,6 +52,9 @@ Resources:
         S3Key: !Sub "${Version}/move-files-dropbox.zip"
       Description: Transform files between directories
       Handler: move_files.index.handler
+      Environment:
+        Variables:
+          CREDENTIALS_LOCATION: !Sub 's3://${MoveFilesS3Bucket}/credentials.json'
       MemorySize: 256
       Role: !GetAtt MoveFilesLambdaRole.Arn
       Runtime: python3.6
