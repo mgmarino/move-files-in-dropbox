@@ -51,7 +51,7 @@ Resources:
         S3Bucket: !Sub 'move-files-dropbox-releases-${AWS::Region}'
         S3Key: !Sub "${Version}/move-files-dropbox.zip"
       Description: Transform files between directories
-      Handler: index.handler
+      Handler: move_files.index.handler
       MemorySize: 256
       Role: !GetAtt MoveFilesLambdaRole.Arn
       Runtime: python3.6
