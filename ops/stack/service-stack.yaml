@@ -33,13 +33,14 @@ Resources:
           Action: sts:AssumeRole
       Path: /
       Policies:
-        - PolicyName: RequestCFData
+        - PolicyName: GetCredentials
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-            - Effect: Allow
-              Action: cloudformation:DescribeStackResource
-              Resource: !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*'
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource:
+                  - !Sub '${MoveFilesS3Bucket.Arn}/credentials.json'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
