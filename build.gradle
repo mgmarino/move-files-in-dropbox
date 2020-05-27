@@ -27,7 +27,6 @@ task copyPythonFiles(type: Copy, dependsOn: buildRequirementsFile) {
         exclude "*__pycache__"
     }
     from buildRequirementsFile.outputs
-    from 'credentials.json'
     into pythonPackage
 }
 
