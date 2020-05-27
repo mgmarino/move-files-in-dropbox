@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 dropbox = "*"
+s3fs = "*"
 
 [dev-packages]
 pre-commit = "==2.2.0"

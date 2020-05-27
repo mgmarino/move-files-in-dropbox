@@ -1,5 +1,13 @@
 plugins {
     id 'base'
+    id 'java'
+    id 'idea'
+}
+
+idea {
+    module {
+        sourceDirs += file('src')
+    }
 }
 
 ext {
@@ -10,14 +18,23 @@ clean {
     delete "$buildDir"
 }
 
-task copyPythonFiles(type: Copy) {
+task buildRequirementsFile(type: Exec) {
+    inputs.files 'Pipfile', 'Pipfile.lock'
+    outputs.files "${buildDir}/requirements.txt"
+    commandLine "pipenv", "lock", "-r"
+    standardOutput = new ByteArrayOutputStream()
+    doLast {
+        outputs.files[0].text = standardOutput.toString()
+    }
+}
+
+task copyPythonFiles(type: Copy, dependsOn: buildRequirementsFile) {
     from('src') {
         include '**/*.py'
         include 'index.py'
-        include 'requirements.txt'
         exclude "*__pycache__"
     }
-    from 'credentials.json'
+    from buildRequirementsFile.outputs
     into pythonPackage
 }
 
