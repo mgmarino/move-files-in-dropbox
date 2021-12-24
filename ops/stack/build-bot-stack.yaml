@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Move Files Dropbox Build Stack
+
+Parameters:
+  StackPrefix:
+    Type: String
+    Default: move-files-dropbox
+
+Resources:
+  GithubOIDCReleaseRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${StackPrefix}-build-role'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com'
+            Condition:
+              StringLike:
+                token.actions.githubusercontent.com:sub: repo:mgmarino/move-files-in-dropbox:*
+      Policies:
+        - PolicyName: CFAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action: 'cloudformation:*'
+                Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackPrefix}*'
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:aws:transform/Serverless-2016-10-31'
+        - PolicyName: ReleaseBucketAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 's3:*'
+                Resource:
+                  - !Sub 'arn:aws:s3:::${StackPrefix}-releases-*'
