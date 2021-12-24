@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: {}
+
+env:
+  PYTHON_VERSION: '3.6'
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - id: release_version
+        run: |
+          VERSION=v`git rev-list release/v0.. --count --first-parent`
+          echo "##[set-output name=version;]$(echo ${VERSION})"
+    outputs:
+      version: ${{ steps.release_version.outputs.version }}
+
+  build_python_packages:
+    name: Build Python packages
+    runs-on: ubuntu-latest
+    needs:
+      - version
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Tag local git for version
+        run: git tag release/${{ needs.version.outputs.version }}
+
+      - name: Build Lambda Zip
+        run:  |
+          pip install . -t build/package
+          pushd build/package && zip -r ../move-files-dropbox.zip . && popd
+
+      - name: Upload zip artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: build/*.zip
+          name: zip_archives
+
+  upload_to_s3:
+    name: Upload artifacts to s3
+    runs-on: ubuntu-latest
+    needs: [version, build_python_packages]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/move-files-dropbox-build-role
+          aws-region: eu-west-1
+
+      - name: Upload data to s3
+        env:
+          BUCKETPATH: s3://move-files-dropbox-releases-eu-west-1/${{ needs.version.outputs.version }}
+        run: |
+          aws s3 sync zip_archives/ $BUCKETPATH/
+          aws s3 sync --exclude '*' --include '*.yaml' ops/stack/ $BUCKETPATH/
+
+  create_gh_release:
+    name: Create GH Release
+    runs-on: ubuntu-latest
+    needs: [version, upload_to_s3]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Create release
+        env:
+          TAG: release/${{ needs.version.outputs.version }}
+          TITLE: "${{ needs.version.outputs.version }}"
+          BODY: "# ${{ github.event.head_commit.message }}"
+          GITHUB_TOKEN: ${{ secrets.GH_CI_USER_RELEASE_TOKEN }}
+        run: |
+          gh release create "$TAG" -t "$TITLE" -n "$BODY"
