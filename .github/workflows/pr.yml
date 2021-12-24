@@ -1,45 +1,38 @@
 name: PR builder
 on: pull_request
 
+env:
+  PYTHON_VERSION: '3.6'
 
 jobs:
   build:
     name: PR building
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      JITPACK_TOKEN: ${{ secrets.JITPACK_TOKEN }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
 
-      - name: Checkout full history
-        run: |
-         git fetch --prune --unshallow
-
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.6'
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Setup Java for Gradle
-        uses: actions/setup-java@v1
+      - name: Setup venv cache
+        uses: actions/cache@v2
         with:
-          java-version: '8.0.252'
-
-      - name: Setup gradle cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          path: |
+            ~/.local/share/virtualenvs
+            ~/.cache/pre-commit
+            ~/.cache/pip
+          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-venv-${{ hashFiles('**/Pipfile*') }}-${{ hashFiles('**/.pre-commit-config.yaml*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-${{ env.PYTHON_VERSION }}-venv-
 
       - name: Update environment
         run: |
           pip install pipenv
+          pipenv install --dev --deploy
 
-      - name: Run checks
-        run: ./gradlew clean build -i --stacktrace
-        env:
-          GIT_BRANCH: ${{ github.head_ref }}
+      - name: Run linter
+        run: |
+         pipenv run pre-commit run --all-files
