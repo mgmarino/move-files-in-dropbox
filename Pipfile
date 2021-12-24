@@ -8,9 +8,7 @@ dropbox = "*"
 s3fs = "*"
 
 [dev-packages]
-pre-commit = "==2.2.0"
-black = "==19.10b0"
-cfgv = "*"
+pre-commit = ">=2.9.2"
 
 [requires]
 python_version = "3.6"
