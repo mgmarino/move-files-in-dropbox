@@ -95,6 +95,6 @@ jobs:
           TAG: release/${{ needs.version.outputs.version }}
           TITLE: "${{ needs.version.outputs.version }}"
           BODY: "# ${{ github.event.head_commit.message }}"
-          GITHUB_TOKEN: ${{ secrets.GH_CI_USER_RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "$TAG" -t "$TITLE" -n "$BODY"
