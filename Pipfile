@@ -4,8 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-dropbox = "*"
-s3fs = "*"
+move-files = {editable = true, path = "."}
 
 [dev-packages]
 pre-commit = ">=2.9.2"
