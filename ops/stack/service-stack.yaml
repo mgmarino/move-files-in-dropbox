@@ -57,7 +57,7 @@ Resources:
           CREDENTIALS_LOCATION: !Sub 's3://${MoveFilesS3Bucket}/credentials.json'
       MemorySize: 256
       Role: !GetAtt MoveFilesLambdaRole.Arn
-      Runtime: python3.6
+      Runtime: python3.11
       Timeout: 300
       Tags:
       - Key: Name

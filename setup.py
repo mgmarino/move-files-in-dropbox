@@ -9,5 +9,5 @@ setup(
         "dropbox",
         "s3fs",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.11",
 )
